@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.22)
 
 # Project properties
 set(PROJECT_NAMESPACE machines-in-motion)
@@ -16,7 +16,6 @@ set(CMAKE_VERBOSE_MAKEFILE True)
 add_compile_options(--warn-no-conversion)
 
 # Project options
-option(BUILD_PYTHON_INTERFACE "Build the python binding" ON)
 option(SUFFIX_SO_VERSION "Suffix library name with its version" ON)
 option(BUILD_WITH_PROXSUITE "Build the ProxQP-based SQP solver" OFF)
 option(BUILD_BENCHMARKS "Build the benchmarks" OFF)
@@ -47,14 +46,6 @@ else()
       TARGET jrl-cmakemodules::jrl-cmakemodules
       PROPERTY INTERFACE_INCLUDE_DIRECTORIES)
     message(STATUS "JRL cmakemodules found on system at ${JRL_CMAKE_MODULES}")
-  elseif(${CMAKE_VERSION} VERSION_LESS "3.14.0")
-    message(
-      FATAL_ERROR
-        "\nCan't find jrl-cmakemodules. Please either:\n"
-        "  - use git submodule: 'git submodule update --init'\n"
-        "  - or install https://github.com/jrl-umi3218/jrl-cmakemodules\n"
-        "  - or upgrade your CMake version to >= 3.14 to allow automatic fetching\n"
-    )
   else()
     message(STATUS "JRL cmakemodules not found. Let's fetch it.")
     include(FetchContent)
@@ -129,25 +120,33 @@ if(BUILD_WITH_PROXSUITE)
   list(APPEND ${PROJECT_NAME}_SOURCES src/csqp_proxqp.cpp)
 endif(BUILD_WITH_PROXSUITE)
 
-add_library(${PROJECT_NAME} SHARED ${${PROJECT_NAME}_SOURCES}
-                                   ${${PROJECT_NAME}_HEADERS})
-target_include_directories(
-  ${PROJECT_NAME} PUBLIC $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
+if(BUILD_STANDALONE_PYTHON_INTERFACE)
+  add_project_dependency(${PROJECT_NAME} REQUIRED CONFIG)
+  set(PROJECT_EXPORT_NO_TARGET ON)
+else()
+  add_library(${PROJECT_NAME} SHARED ${${PROJECT_NAME}_SOURCES}
+                                     ${${PROJECT_NAME}_HEADERS})
+  add_library(${PROJECT_NAME}::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
+  target_include_directories(
+    ${PROJECT_NAME} PUBLIC $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
 
-if(SUFFIX_SO_VERSION)
-  set_target_properties(${PROJECT_NAME} PROPERTIES SOVERSION ${PROJECT_VERSION})
-endif()
+  if(SUFFIX_SO_VERSION)
+    set_target_properties(${PROJECT_NAME} PROPERTIES SOVERSION
+                                                     ${PROJECT_VERSION})
+  endif()
 
-# Main Executable
-target_link_libraries(${PROJECT_NAME} crocoddyl::crocoddyl)
-if(BUILD_WITH_PROXSUITE)
-  target_link_libraries(${PROJECT_NAME} proxsuite::proxsuite)
-endif()
+  # Main Executable
+  target_link_libraries(${PROJECT_NAME} crocoddyl::crocoddyl)
+  if(BUILD_WITH_PROXSUITE)
+    target_link_libraries(${PROJECT_NAME} proxsuite::proxsuite)
+  endif()
 
-if(UNIX)
-  get_relative_rpath(${CMAKE_INSTALL_LIBDIR} ${PROJECT_NAME}_INSTALL_RPATH)
-  set_target_properties(
-    ${PROJECT_NAME} PROPERTIES INSTALL_RPATH "${${PROJECT_NAME}_INSTALL_RPATH}")
+  if(UNIX)
+    get_relative_rpath(${CMAKE_INSTALL_LIBDIR} ${PROJECT_NAME}_INSTALL_RPATH)
+    set_target_properties(
+      ${PROJECT_NAME} PROPERTIES INSTALL_RPATH
+                                 "${${PROJECT_NAME}_INSTALL_RPATH}")
+  endif()
 endif()
 
 # Python Bindings
@@ -161,13 +160,14 @@ if(BUILD_TESTING)
 endif()
 
 # Benchmarks
-if(BUILD_BENCHMARKS)
+if(BUILD_BENCHMARKS AND NOT BUILD_STANDALONE_PYTHON_INTERFACE)
   add_subdirectory(benchmarks)
 endif()
 
 # Installation
-install(
-  TARGETS ${PROJECT_NAME}
-  EXPORT ${TARGETS_EXPORT_NAME}
-  DESTINATION ${CMAKE_INSTALL_LIBDIR})
-install(FILES package.xml DESTINATION share/${PROJECT_NAME})
+if(NOT BUILD_STANDALONE_PYTHON_INTERFACE)
+  install(
+    TARGETS ${PROJECT_NAME}
+    EXPORT ${TARGETS_EXPORT_NAME}
+    DESTINATION ${CMAKE_INSTALL_LIBDIR})
+endif()

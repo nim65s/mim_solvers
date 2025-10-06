@@ -10,13 +10,15 @@ set(${PROJECT_NAME}_FACTORY_TEST
     factory/solver.hpp
     factory/solver.cpp)
 
-add_library(${PROJECT_NAME}_unittest SHARED ${${PROJECT_NAME}_FACTORY_TEST})
-target_link_libraries(
-  ${PROJECT_NAME}_unittest PUBLIC ${PROJECT_NAME}
-                                  example-robot-data::example-robot-data)
+if(NOT BUILD_STANDALONE_PYTHON_INTERFACE)
+  add_library(${PROJECT_NAME}_unittest SHARED ${${PROJECT_NAME}_FACTORY_TEST})
+  target_link_libraries(
+    ${PROJECT_NAME}_unittest PUBLIC ${PROJECT_NAME}::${PROJECT_NAME}
+                                    example-robot-data::example-robot-data)
 
-add_unit_test(test_solvers test_solvers.cpp)
-target_link_libraries(test_solvers PUBLIC ${PROJECT_NAME}_unittest)
+  add_unit_test(test_solvers test_solvers.cpp)
+  target_link_libraries(test_solvers PUBLIC ${PROJECT_NAME}_unittest)
+endif()
 
 if(BUILD_PYTHON_INTERFACE)
   add_python_unit_test("py-test-clqr-convergence-all"

@@ -17,7 +17,8 @@ if(BUILD_WITH_PROXSUITE)
 endif(BUILD_WITH_PROXSUITE)
 
 add_library(${PY_NAME} MODULE ${${PY_NAME}_SOURCES})
-target_link_libraries(${PY_NAME} PUBLIC ${PROJECT_NAME} eigenpy::eigenpy)
+target_link_libraries(${PY_NAME} PUBLIC ${PROJECT_NAME}::${PROJECT_NAME}
+                                        eigenpy::eigenpy)
 
 set_target_properties(
   ${PY_NAME}
