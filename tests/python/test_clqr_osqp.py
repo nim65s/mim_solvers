@@ -12,6 +12,7 @@ import os
 import pathlib
 
 import numpy as np
+import unittest
 
 python_path = pathlib.Path(".").absolute().parent.parent / "python"
 os.sys.path.insert(1, str(python_path))
@@ -23,34 +24,49 @@ LINE_WIDTH = 100
 
 print(" TEST OSQP ".center(LINE_WIDTH, "-"))
 
-problem, xs_init, us_init = create_clqr_problem()
 
-ddp1 = CSQP(problem, "CustomOSQP")
-ddp2 = CSQP(problem, "OSQP")
+class TestCLQROSQP(unittest.TestCase):
+    def setUp(self):
+        self.problem, self.xs_init, self.us_init = create_clqr_problem()
+        self.ddp1 = CSQP(self.problem, "CustomOSQP")
+        self.ddp2 = CSQP(self.problem, "OSQP")
+        self.ddp1.with_callbacks = True
+        self.ddp2.with_callbacks = True
+        max_qp_iters = 10000
+        self.ddp1.max_qp_iters = max_qp_iters
+        self.ddp2.max_qp_iters = max_qp_iters
+        eps_abs = 1e-8
+        self.ddp1.eps_abs = eps_abs
+        self.ddp2.eps_abs = eps_abs
 
-ddp1.with_callbacks = True
-ddp2.with_callbacks = True
+    # @unittest.skip("Skipping this test as it seems that the \"OSQP\" solver does not converge as of 12/09/2025.")
+    def test_osqp_match(self):
+        self.ddp1.solve(self.xs_init, self.us_init, 1)
+        self.ddp2.solve(self.xs_init, self.us_init, 1)
+        set_tol = 1e-8
+        self.assertEqual(self.ddp1.qp_iters, self.ddp2.qp_iters)
+        self.assertTrue(
+            np.linalg.norm(np.array(self.ddp1.xs) -
+                           np.array(self.ddp2.xs)) < set_tol,
+            "Test failed: xs mismatch",
+        )
+        self.assertTrue(
+            np.linalg.norm(np.array(self.ddp1.us) -
+                           np.array(self.ddp2.us)) < set_tol,
+            "Test failed: us mismatch",
+        )
+        self.assertTrue(
+            np.linalg.norm(np.array(self.ddp1.lag_mul) -
+                           np.array(self.ddp2.lag_mul))
+            < set_tol,
+            "Test failed: lag_mul mismatch",
+        )
+        for t in range(len(self.ddp1.y)):
+            self.assertTrue(
+                np.linalg.norm(self.ddp1.y[t] - self.ddp2.y[t]) < set_tol,
+                f"Test failed: y mismatch at t={t}",
+            )
 
-max_qp_iters = 10000
-ddp1.max_qp_iters = max_qp_iters
-ddp2.max_qp_iters = max_qp_iters
 
-eps_abs = 1e-8
-eps_rel = 0.0
-ddp1.eps_abs = eps_abs
-ddp2.eps_abs = eps_abs
-
-converged = ddp1.solve(xs_init, us_init, 1)
-converged = ddp2.solve(xs_init, us_init, 1)
-
-
-assert ddp1.qp_iters == ddp2.qp_iters
-
-set_tol = 1e-8
-assert np.linalg.norm(np.array(ddp1.xs) - np.array(ddp2.xs)) < set_tol, "Test failed"
-assert np.linalg.norm(np.array(ddp1.us) - np.array(ddp2.us)) < set_tol, "Test failed"
-assert np.linalg.norm(np.array(ddp1.lag_mul) - np.array(ddp2.lag_mul)) < set_tol, (
-    "Test failed"
-)
-for t in range(len(ddp1.y)):
-    assert np.linalg.norm(ddp1.y[t] - ddp2.y[t]) < set_tol, "Test failed"
+if __name__ == "__main__":
+    unittest.main()
