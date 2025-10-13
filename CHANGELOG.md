@@ -74,7 +74,7 @@ Releases are available on the [github repository](https://github.com/machines-in
 - Added vectorization and malloc check options in CMakeLists
 - Added Github CI
 
-### Changed 
+### Changed
 
 - Code optimization
 - Now checking stopping criteria for QP every 25 iterations in SolverCSQP (as a result, it is now more efficient to use SolverSQP for unconstrained problems)
