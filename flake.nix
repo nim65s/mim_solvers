@@ -25,6 +25,7 @@
           packages = {
             default = self'.packages.py-mim-solvers;
             mim-solvers = pkgs.mim-solvers.overrideAttrs {
+              patches = [ ];
               src = lib.fileset.toSource {
                 root = ./.;
                 fileset = lib.fileset.unions [
@@ -52,6 +53,7 @@
                   pkgs.python3Packages.python
                 ];
                 propagatedBuildInputs = [
+                  pkgs.python3Packages.boost
                   pkgs.python3Packages.crocoddyl
                   pkgs.python3Packages.osqp
                   pkgs.python3Packages.proxsuite
