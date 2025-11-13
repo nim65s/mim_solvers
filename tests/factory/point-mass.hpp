@@ -60,6 +60,17 @@ class DAMPointMass1D : public crocoddyl::DifferentialActionModelAbstract {
   // Destructor
   virtual ~DAMPointMass1D();
 
+  // Explicit template instanciation
+  std::shared_ptr<crocoddyl::DifferentialActionModelBase> cloneAsDouble()
+      const override {
+    return std::make_shared<DAMPointMass1D>(*this);
+  }
+
+  std::shared_ptr<crocoddyl::DifferentialActionModelBase> cloneAsFloat()
+      const override {
+    return std::make_shared<DAMPointMass1D>(*this);
+  }
+
   // Cost & dynamics
   void calc(const std::shared_ptr<DifferentialActionDataAbstract>& data,
             const Eigen::Ref<const VectorXd>& x,
@@ -134,6 +145,17 @@ class DAMPointMass2D : public crocoddyl::DifferentialActionModelAbstract {
 
   // Destructor
   virtual ~DAMPointMass2D();
+
+  // Explicit template instanciation
+  std::shared_ptr<crocoddyl::DifferentialActionModelBase> cloneAsDouble()
+      const override {
+    return std::make_shared<DAMPointMass2D>(*this);
+  }
+
+  std::shared_ptr<crocoddyl::DifferentialActionModelBase> cloneAsFloat()
+      const override {
+    return std::make_shared<DAMPointMass2D>(*this);
+  }
 
   // Cost & dynamics
   void calc(const std::shared_ptr<DifferentialActionDataAbstract>& data,

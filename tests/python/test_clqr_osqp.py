@@ -39,31 +39,30 @@ class TestCLQROSQP(unittest.TestCase):
         self.ddp1.eps_abs = eps_abs
         self.ddp2.eps_abs = eps_abs
 
-    # @unittest.skip("Skipping this test as it seems that the \"OSQP\" solver does not converge as of 12/09/2025.")
     def test_osqp_match(self):
         self.ddp1.solve(self.xs_init, self.us_init, 1)
         self.ddp2.solve(self.xs_init, self.us_init, 1)
         set_tol = 1e-8
         self.assertEqual(self.ddp1.qp_iters, self.ddp2.qp_iters)
-        self.assertTrue(
-            np.linalg.norm(np.array(self.ddp1.xs) -
-                           np.array(self.ddp2.xs)) < set_tol,
+        self.assertLess(
+            np.linalg.norm(np.array(self.ddp1.xs) - np.array(self.ddp2.xs)),
+            set_tol,
             "Test failed: xs mismatch",
         )
-        self.assertTrue(
-            np.linalg.norm(np.array(self.ddp1.us) -
-                           np.array(self.ddp2.us)) < set_tol,
+        self.assertLess(
+            np.linalg.norm(np.array(self.ddp1.us) - np.array(self.ddp2.us)),
+            set_tol,
             "Test failed: us mismatch",
         )
-        self.assertTrue(
-            np.linalg.norm(np.array(self.ddp1.lag_mul) -
-                           np.array(self.ddp2.lag_mul))
-            < set_tol,
+        self.assertLess(
+            np.linalg.norm(np.array(self.ddp1.lag_mul) - np.array(self.ddp2.lag_mul)),
+            set_tol,
             "Test failed: lag_mul mismatch",
         )
         for t in range(len(self.ddp1.y)):
-            self.assertTrue(
-                np.linalg.norm(self.ddp1.y[t] - self.ddp2.y[t]) < set_tol,
+            self.assertLess(
+                np.linalg.norm(self.ddp1.y[t] - self.ddp2.y[t]),
+                set_tol,
                 f"Test failed: y mismatch at t={t}",
             )
 

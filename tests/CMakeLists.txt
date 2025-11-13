@@ -29,7 +29,8 @@ if(BUILD_PYTHON_INTERFACE)
                        "tests/python/test_clqr_stagewise_admm.py" bindings)
   add_python_unit_test("py-test-lqr-sqp" "tests/python/test_lqr_problem.py"
                        bindings)
-  add_python_unit_test("py-test-sqp-no-reg" "tests/python/test_sqp.py" bindings)
+  # TODO: ActuationModelMultiCopterBase was removed in crocoddyl 3.1.0
+  # add_python_unit_test("py-test-sqp-no-reg" "tests/python/test_sqp.py" bindings)
   add_python_unit_test("py-test-sqp-taichi-convergence"
                        "tests/python/test_sqp_taichi_convergence.py" bindings)
   add_python_unit_test("py-test-sqp-ur5-convergence"
