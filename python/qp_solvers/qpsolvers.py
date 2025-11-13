@@ -276,12 +276,12 @@ class QPSolvers(SolverAbstract, CustomOSQP, StagewiseQPKKT):
                 nin_count += model.ng
 
         elif self.method == "OSQP":
-            Aeq = sparse.csr_matrix(A)
-            Aineq = sparse.csr_matrix(C)
+            Aeq = sparse.csc_matrix(A)
+            Aineq = sparse.csc_matrix(C)
             Aosqp = sparse.vstack([Aeq, Aineq])
             losqp = np.hstack([B, l])
             uosqp = np.hstack([B, u])
-            P = sparse.csr_matrix(P)
+            P = sparse.csc_matrix(P)
             if self.DEBUG:
                 print(
                     "nnz(P) = ",
@@ -306,14 +306,16 @@ class QPSolvers(SolverAbstract, CustomOSQP, StagewiseQPKKT):
                 Aosqp,
                 losqp,
                 uosqp,
-                warm_start=False,
+                warm_starting=False,
                 scaling=self.OSQP_scaling,
                 max_iter=self.max_qp_iters,
                 adaptive_rho=True,
+                adaptive_rho_interval=25,
                 verbose=self.verboseQP,
                 eps_rel=self.eps_rel,
                 eps_abs=self.eps_abs,
             )
+
             t1 = time.time()
             tmp = prob.solve()
             self.qp_time = time.time() - t1

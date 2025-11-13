@@ -32,7 +32,7 @@ class TestCLQROSQP(unittest.TestCase):
         self.ddp2 = CSQP(self.problem, "OSQP")
         self.ddp1.with_callbacks = True
         self.ddp2.with_callbacks = True
-        max_qp_iters = 10000
+        max_qp_iters = 25
         self.ddp1.max_qp_iters = max_qp_iters
         self.ddp2.max_qp_iters = max_qp_iters
         eps_abs = 1e-8
