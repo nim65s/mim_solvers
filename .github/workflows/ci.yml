@@ -31,9 +31,6 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - run: python -m pip install crocoddyl[build] proxsuite[build]
       - run: echo "CMAKE_PREFIX_PATH=$(cmeel cmake)" >> $GITHUB_ENV
-      # TODO: remove this after the next crocoddyl release
-      # ref. https://github.com/loco-3d/crocoddyl/pull/1440
-      - run: sed -i '1i \#include <memory>' $CMAKE_PREFIX_PATH/include/crocoddyl/core/utils/conversions.hpp
       - run: cmake -B build -S .
       - run: cmake --build build -j 4
 
