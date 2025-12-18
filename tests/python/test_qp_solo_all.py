@@ -21,7 +21,7 @@ import numpy as np
 import pinocchio
 import pinocchio as pin
 
-python_path = pathlib.Path(".").absolute().parent.parent / "python"
+python_path = pathlib.Path(__file__).absolute().parent.parent.parent / "python"
 os.sys.path.insert(1, str(python_path))
 
 from csqp import CSQP  # noqa: E402

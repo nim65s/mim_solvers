@@ -14,7 +14,7 @@ import pathlib
 import mim_solvers
 import numpy as np
 
-python_path = pathlib.Path(".").absolute().parent.parent / "python"
+python_path = pathlib.Path(__file__).absolute().parent.parent.parent / "python"
 os.sys.path.insert(1, str(python_path))
 
 from csqp import CSQP  # noqa: E402
