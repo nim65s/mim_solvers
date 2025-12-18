@@ -9,6 +9,10 @@ Releases are available on the [github repository](https://github.com/machines-in
 
 ## [Unreleased]
 
+- update for crocoddy v3
+- update for osqp v1
+- remove python 3.8 support
+
 ## [0.1.1] - 2025-03-22
 
 ### Fixed
