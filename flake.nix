@@ -48,7 +48,7 @@
             };
             packages = {
               default = self'.packages.mim-solvers;
-              mim-solvers = pkgs.python3Packages.mim-solvers.override { standalone = false; };
+              mim-solvers = pkgs.python3Packages.mim-solvers.override { buildStandalone = false; };
             };
           };
       }
