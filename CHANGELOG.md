@@ -9,6 +9,11 @@ Releases are available on the [github repository](https://github.com/machines-in
 
 ## [Unreleased]
 
+- python: fix compatibility with numpy 2.4
+- cmake: removed submodule
+- format: cmake-format -> gersemi
+- nix: switch to flakoboros
+
 ## [0.2.0] - 2025-12-18
 
 - update for crocoddy v3
