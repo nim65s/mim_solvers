@@ -4,7 +4,8 @@ cmake_minimum_required(VERSION 3.22)
 set(PROJECT_NAMESPACE machines-in-motion)
 set(PROJECT_NAME mim_solvers)
 set(PROJECT_DESCRIPTION
-    "Numerical solvers of the Machines in Motion Laboratory.")
+    "Numerical solvers of the Machines in Motion Laboratory."
+)
 set(PROJECT_URL https://github.com/${PROJECT_NAMESPACE}/${PROJECT_NAME})
 set(PROJECT_CUSTOM_HEADER_EXTENSION "hpp")
 set(PROJECT_USE_CMAKE_EXPORT TRUE)
@@ -20,41 +21,54 @@ option(SUFFIX_SO_VERSION "Suffix library name with its version" ON)
 option(BUILD_WITH_PROXSUITE "Build the ProxQP-based SQP solver" OFF)
 option(BUILD_BENCHMARKS "Build the benchmarks" OFF)
 option(CHECK_RUNTIME_MALLOC "Check eigen mallocs" OFF)
-option(ENABLE_VECTORIZATION
-       "Enable vectorization and further processor-related optimizations" OFF)
-option(BUILD_WITH_MULTITHREADS
-       "Build the library with the Multithreading support (required OpenMP)"
-       OFF)
+option(
+    ENABLE_VECTORIZATION
+    "Enable vectorization and further processor-related optimizations"
+    OFF
+)
+option(
+    BUILD_WITH_MULTITHREADS
+    "Build the library with the Multithreading support (required OpenMP)"
+    OFF
+)
 
 # Project configuration
 set(PROJECT_USE_CMAKE_EXPORT TRUE)
 set(CUSTOM_HEADER_DIR ${PROJECT_NAME})
 
 if(ENABLE_VECTORIZATION)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=native")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=native")
 endif()
 
 # Check if the submodule cmake have been initialized
 set(JRL_CMAKE_MODULES "${CMAKE_CURRENT_LIST_DIR}/cmake")
 if(EXISTS "${JRL_CMAKE_MODULES}/base.cmake")
-  message(STATUS "JRL cmakemodules found in 'cmake/' git submodule")
+    message(STATUS "JRL cmakemodules found in 'cmake/' git submodule")
 else()
-  find_package(jrl-cmakemodules QUIET CONFIG)
-  if(jrl-cmakemodules_FOUND)
-    get_property(
-      JRL_CMAKE_MODULES
-      TARGET jrl-cmakemodules::jrl-cmakemodules
-      PROPERTY INTERFACE_INCLUDE_DIRECTORIES)
-    message(STATUS "JRL cmakemodules found on system at ${JRL_CMAKE_MODULES}")
-  else()
-    message(STATUS "JRL cmakemodules not found. Let's fetch it.")
-    include(FetchContent)
-    FetchContent_Declare(
-      "jrl-cmakemodules"
-      GIT_REPOSITORY "https://github.com/jrl-umi3218/jrl-cmakemodules.git")
-    FetchContent_MakeAvailable("jrl-cmakemodules")
-    FetchContent_GetProperties("jrl-cmakemodules" SOURCE_DIR JRL_CMAKE_MODULES)
-  endif()
+    find_package(jrl-cmakemodules QUIET CONFIG)
+    if(jrl-cmakemodules_FOUND)
+        get_property(
+            JRL_CMAKE_MODULES
+            TARGET jrl-cmakemodules::jrl-cmakemodules
+            PROPERTY INTERFACE_INCLUDE_DIRECTORIES
+        )
+        message(
+            STATUS
+            "JRL cmakemodules found on system at ${JRL_CMAKE_MODULES}"
+        )
+    else()
+        message(STATUS "JRL cmakemodules not found. Let's fetch it.")
+        include(FetchContent)
+        FetchContent_Declare(
+            "jrl-cmakemodules"
+            GIT_REPOSITORY "https://github.com/jrl-umi3218/jrl-cmakemodules.git"
+        )
+        FetchContent_MakeAvailable("jrl-cmakemodules")
+        FetchContent_GetProperties(
+            "jrl-cmakemodules"
+            SOURCE_DIR JRL_CMAKE_MODULES
+        )
+    endif()
 endif()
 
 # JRL-cmakemodule setup
@@ -75,32 +89,33 @@ apply_default_apple_configuration()
 find_package(Boost REQUIRED COMPONENTS unit_test_framework)
 add_project_dependency(crocoddyl 3.0.0 REQUIRED)
 if(BUILD_PYTHON_INTERFACE)
-  add_project_dependency(eigenpy 2.7.10 REQUIRED)
+    add_project_dependency(eigenpy 2.7.10 REQUIRED)
 endif()
 
 if(BUILD_BENCHMARKS OR BUILD_TESTING)
-  add_project_dependency(example-robot-data 4.0.7 REQUIRED PKG_CONFIG_REQUIRES
-                         "example-robot-data >= 4.0.7")
+    add_project_dependency(example-robot-data 4.0.7 REQUIRED PKG_CONFIG_REQUIRES
+                           "example-robot-data >= 4.0.7"
+    )
 endif()
 
 if(BUILD_WITH_PROXSUITE)
-  add_project_dependency(proxsuite REQUIRED)
-  add_definitions(-DMIM_SOLVERS_WITH_PROXQP)
+    add_project_dependency(proxsuite REQUIRED)
+    add_definitions(-DMIM_SOLVERS_WITH_PROXQP)
 endif()
 
 if(BUILD_WITH_MULTITHREADS)
-  find_package(OpenMP REQUIRED COMPONENTS CXX)
+    find_package(OpenMP REQUIRED COMPONENTS CXX)
 endif()
 
 if(BUILD_PYTHON_INTERFACE)
-  set(PY_NAME ${PROJECT_NAME}_pywrap)
-  set(${PY_NAME}_INSTALL_DIR ${PYTHON_SITELIB}/${PY_NAME})
+    set(PY_NAME ${PROJECT_NAME}_pywrap)
+    set(${PY_NAME}_INSTALL_DIR ${PYTHON_SITELIB}/${PY_NAME})
 endif()
 
 if(CHECK_RUNTIME_MALLOC)
-  message(STATUS "Check if some memory allocations are performed at runtime.")
-  add_definitions(-DMIM_SOLVERS_EIGEN_CHECK_MALLOC)
-  add_definitions(-DEIGEN_RUNTIME_NO_MALLOC)
+    message(STATUS "Check if some memory allocations are performed at runtime.")
+    add_definitions(-DMIM_SOLVERS_EIGEN_CHECK_MALLOC)
+    add_definitions(-DEIGEN_RUNTIME_NO_MALLOC)
 endif(CHECK_RUNTIME_MALLOC)
 
 # Main Library
@@ -110,64 +125,81 @@ set(${PROJECT_NAME}_HEADERS
     include/${PROJECT_NAME}/fddp.hpp
     include/${PROJECT_NAME}/sqp.hpp
     include/${PROJECT_NAME}/csqp.hpp
-    include/${PROJECT_NAME}/utils/callbacks.hpp)
+    include/${PROJECT_NAME}/utils/callbacks.hpp
+)
 
-set(${PROJECT_NAME}_SOURCES src/kkt.cpp src/ddp.cpp src/fddp.cpp src/sqp.cpp
-                            src/csqp.cpp src/utils/callbacks.cpp)
+set(${PROJECT_NAME}_SOURCES
+    src/kkt.cpp
+    src/ddp.cpp
+    src/fddp.cpp
+    src/sqp.cpp
+    src/csqp.cpp
+    src/utils/callbacks.cpp
+)
 
 if(BUILD_WITH_PROXSUITE)
-  list(APPEND ${PROJECT_NAME}_HEADERS include/${PROJECT_NAME}/csqp_proxqp.hpp)
-  list(APPEND ${PROJECT_NAME}_SOURCES src/csqp_proxqp.cpp)
+    list(APPEND ${PROJECT_NAME}_HEADERS include/${PROJECT_NAME}/csqp_proxqp.hpp)
+    list(APPEND ${PROJECT_NAME}_SOURCES src/csqp_proxqp.cpp)
 endif(BUILD_WITH_PROXSUITE)
 
 if(BUILD_STANDALONE_PYTHON_INTERFACE)
-  add_project_dependency(${PROJECT_NAME} REQUIRED CONFIG)
-  set(PROJECT_EXPORT_NO_TARGET ON)
+    add_project_dependency(${PROJECT_NAME} REQUIRED CONFIG)
+    set(PROJECT_EXPORT_NO_TARGET ON)
 else()
-  add_library(${PROJECT_NAME} SHARED ${${PROJECT_NAME}_SOURCES}
-                                     ${${PROJECT_NAME}_HEADERS})
-  add_library(${PROJECT_NAME}::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
-  target_include_directories(
-    ${PROJECT_NAME} PUBLIC $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
+    add_library(
+        ${PROJECT_NAME}
+        SHARED
+        ${${PROJECT_NAME}_SOURCES}
+        ${${PROJECT_NAME}_HEADERS}
+    )
+    add_library(${PROJECT_NAME}::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
+    target_include_directories(
+        ${PROJECT_NAME}
+        PUBLIC $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+    )
 
-  if(SUFFIX_SO_VERSION)
-    set_target_properties(${PROJECT_NAME} PROPERTIES SOVERSION
-                                                     ${PROJECT_VERSION})
-  endif()
+    if(SUFFIX_SO_VERSION)
+        set_target_properties(
+            ${PROJECT_NAME}
+            PROPERTIES SOVERSION ${PROJECT_VERSION}
+        )
+    endif()
 
-  # Main Executable
-  target_link_libraries(${PROJECT_NAME} crocoddyl::crocoddyl)
-  if(BUILD_WITH_PROXSUITE)
-    target_link_libraries(${PROJECT_NAME} proxsuite::proxsuite)
-  endif()
+    # Main Executable
+    target_link_libraries(${PROJECT_NAME} crocoddyl::crocoddyl)
+    if(BUILD_WITH_PROXSUITE)
+        target_link_libraries(${PROJECT_NAME} proxsuite::proxsuite)
+    endif()
 
-  if(UNIX)
-    get_relative_rpath(${CMAKE_INSTALL_LIBDIR} ${PROJECT_NAME}_INSTALL_RPATH)
-    set_target_properties(
-      ${PROJECT_NAME} PROPERTIES INSTALL_RPATH
-                                 "${${PROJECT_NAME}_INSTALL_RPATH}")
-  endif()
+    if(UNIX)
+        get_relative_rpath(${CMAKE_INSTALL_LIBDIR} ${PROJECT_NAME}_INSTALL_RPATH)
+        set_target_properties(
+            ${PROJECT_NAME}
+            PROPERTIES INSTALL_RPATH "${${PROJECT_NAME}_INSTALL_RPATH}"
+        )
+    endif()
 endif()
 
 # Python Bindings
 if(BUILD_PYTHON_INTERFACE)
-  add_subdirectory(bindings)
+    add_subdirectory(bindings)
 endif()
 
 # Unit tests
 if(BUILD_TESTING)
-  add_subdirectory(tests)
+    add_subdirectory(tests)
 endif()
 
 # Benchmarks
 if(BUILD_BENCHMARKS AND NOT BUILD_STANDALONE_PYTHON_INTERFACE)
-  add_subdirectory(benchmarks)
+    add_subdirectory(benchmarks)
 endif()
 
 # Installation
 if(NOT BUILD_STANDALONE_PYTHON_INTERFACE)
-  install(
-    TARGETS ${PROJECT_NAME}
-    EXPORT ${TARGETS_EXPORT_NAME}
-    DESTINATION ${CMAKE_INSTALL_LIBDIR})
+    install(
+        TARGETS ${PROJECT_NAME}
+        EXPORT ${TARGETS_EXPORT_NAME}
+        DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    )
 endif()
