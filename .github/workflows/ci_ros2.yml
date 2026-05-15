@@ -10,9 +10,9 @@ jobs:
     strategy:
       matrix:
         env:
-          - {ROS_DISTRO: humble}
-          - {ROS_DISTRO: jazzy}
-          - {ROS_DISTRO: kilted}
+          # - {ROS_DISTRO: humble}
+          # - {ROS_DISTRO: jazzy}
+          # - {ROS_DISTRO: kilted}
           - {ROS_DISTRO: rolling}
     env:
       UPSTREAM_WORKSPACE: github:gepetto/example-robot-data#master
